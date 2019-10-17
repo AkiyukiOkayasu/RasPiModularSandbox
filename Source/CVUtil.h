@@ -10,7 +10,7 @@ public:
     in: CV input value(CV_MIN~CV_MAX)
     return 0.~1.
     */
-    static float normalize(int& in)
+    static float normalize(const int& in)
     {
         return (float)in / (float) CV_MAX;//0~1
     }
@@ -22,7 +22,7 @@ public:
     in: CV input value(CV_MIN~CV_MAX)
     return -1.~1.
     */
-    static float normalizeWithEmphasizeCenter (int& in)
+    static float normalizeWithEmphasizeCenter (const int& in)
     {
         float n = (float)(in - CV_HALF) / (float) CV_MAX;//-1~1
         return n * n * n;//-1~1
@@ -35,10 +35,10 @@ public:
     in: CV input value(CV_MIN~CV_MAX)
     return outMin~outMax
     */
-    static float scale(int& in, float& outMin, float& outMax)
+    static float scale(const int& in, const float& outMin, const float& outMax)
     {
         const float outRange = outMax - outMin;
-        const float a = outRange / (float)CV_MAX
+        const float a = outRange / (float)CV_MAX;
         const float b = (CV_MAX * outMin - outMax * CV_MIN) / CV_MAX;
         return a * (float)in + b;
     }

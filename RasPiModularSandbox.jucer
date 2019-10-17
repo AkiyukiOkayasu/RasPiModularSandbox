@@ -4,6 +4,7 @@
   <MAINGROUP id="Mi91PV" name="RasPiModularSandbox">
     <GROUP id="{455B4135-4898-2355-24F6-1ABD9F12A368}" name="Source">
       <FILE id="nSvjHe" name="AK4558.h" compile="0" resource="0" file="Source/AK4558.h"/>
+      <FILE id="cupAK7" name="CVUtil.h" compile="0" resource="0" file="Source/CVUtil.h"/>
       <FILE id="WSOcr4" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="v1UBj7" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
