@@ -14,10 +14,10 @@ MainComponent::MainComponent()
     setSize(800, 600);
 
     //DSP module
-    for (auto& s : synthVoices) 
+    for (auto &s : synthVoices)
     {
-        auto& osc = s.template get<static_cast<int>(synthVoiceIndex::osc)>();       
-        osc.initialise([](float x){return std::sin(x);}, 128);
+        auto &osc = s.template get<static_cast<int>(synthVoiceIndex::osc)>();
+        osc.initialise([](float x) { return std::sin(x); }, 128);
     }
 
 #if JUCE_LINUX
@@ -95,8 +95,8 @@ MainComponent::MainComponent()
                 txBuffer[0] = (0x18 + i) << 2;
                 txBuffer[1] = txBuffer[2] = 0;
                 spiXfer(spiHandler, txBuffer, txBuffer, 3);
-                cv[i] = (txBuffer[1] & 0xFF) << 4 | (txBuffer[2] & 0xFF) >> 4;                
-            }            
+                cv[i] = (txBuffer[1] & 0xFF) << 4 | (txBuffer[2] & 0xFF) >> 4;
+            }
         }
     });
 #endif //JUCE_LINUX
@@ -145,7 +145,7 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
     spec.sampleRate = sampleRate;
     spec.numChannels = 2;
     spec.maximumBlockSize = samplesPerBlockExpected;
-    for (auto& s: synthVoices) 
+    for (auto &s : synthVoices)
     {
         s.prepare(spec);
     }
@@ -157,14 +157,14 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate
 }
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
-{    
+{
     updateSynthVoices();
     dsp::AudioBlock<float> audioBlock(*bufferToFill.buffer);
-	dsp::ProcessContextReplacing<float> context(audioBlock);
-    for (auto& s: synthVoices) 
+    dsp::ProcessContextReplacing<float> context(audioBlock);
+    for (auto &s : synthVoices)
     {
         s.process(context);
-    }	
+    }
 }
 
 void MainComponent::releaseResources()
@@ -207,13 +207,13 @@ void MainComponent::showAudioSettings()
 
 void MainComponent::updateSynthVoices()
 {
-    for (int i = 0; i < NUM_VOICES; ++i) 
+    for (int i = 0; i < NUM_VOICES; ++i)
     {
-        auto& osc = synthVoices[i].template get<static_cast<int>(synthVoiceIndex::osc)>();
-        auto& gain = synthVoices[i].template get<static_cast<int>(synthVoiceIndex::gain)>();
+        auto &osc = synthVoices[i].template get<static_cast<int>(synthVoiceIndex::osc)>();
+        auto &gain = synthVoices[i].template get<static_cast<int>(synthVoiceIndex::gain)>();
         const int cv_freq = cv[i * 2];
         const int cv_amp = cv[i * 2 + 1];
         osc.setFrequency(CVUtil::scale(cv_freq, OSC_FREQ_MIN, OSC_FREQ_MAX));
         gain.setGainLinear(CVUtil::normalize(cv_amp));
-    } 
+    }
 }

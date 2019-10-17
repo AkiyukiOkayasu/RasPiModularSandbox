@@ -62,7 +62,8 @@ private:
   static constexpr int NUM_ADC_CHANNELS = 8;
 
   //Oscillators
-  enum class synthVoiceIndex{
+  enum class synthVoiceIndex
+  {
     osc = 0,
     gain
   };

@@ -18,7 +18,7 @@
 class AK4558
 {
 public:
-  static void config(int& i2cHandle, const unsigned int ak4558ResetGPIO)
+  static void config(int &i2cHandle, const unsigned int ak4558ResetGPIO)
   {
     using std::chrono::milliseconds;
     using std::this_thread::sleep_for;

@@ -2,7 +2,7 @@
 
 #if JUCE_LINUX
 
-class CVUtil 
+class CVUtil
 {
 public:
     /*
@@ -10,11 +10,10 @@ public:
     in: CV input value(CV_MIN~CV_MAX)
     return 0.~1.
     */
-    static float normalize(const int& in)
+    static float normalize(const int &in)
     {
-        return (float)in / (float) CV_MAX;//0~1
+        return (float)in / (float)CV_MAX; //0~1
     }
-
 
     /*
     normalizeWithEmphasizeCenter
@@ -22,10 +21,10 @@ public:
     in: CV input value(CV_MIN~CV_MAX)
     return -1.~1.
     */
-    static float normalizeWithEmphasizeCenter (const int& in)
+    static float normalizeWithEmphasizeCenter(const int &in)
     {
-        float n = (float)(in - CV_HALF) / (float) CV_MAX;//-1~1
-        return n * n * n;//-1~1
+        float n = (float)(in - CV_HALF) / (float)CV_MAX; //-1~1
+        return n * n * n;                                //-1~1
     }
 
     /*
@@ -35,7 +34,7 @@ public:
     in: CV input value(CV_MIN~CV_MAX)
     return outMin~outMax
     */
-    static float scale(const int& in, const float& outMin, const float& outMax)
+    static float scale(const int &in, const float &outMin, const float &outMax)
     {
         const float outRange = outMax - outMin;
         const float a = outRange / (float)CV_MAX;
@@ -45,11 +44,11 @@ public:
 
 private:
     static constexpr int CV_MIN = 0;
-    static constexpr int CV_MAX = 4095;    
+    static constexpr int CV_MAX = 4095;
     static constexpr int CV_HALF = 2047;
 
     // This calss can't be instantiated, it's just a holder for static methods.
     CVUtil() = delete;
 };
 
-#endif//JUCE_LINUX
+#endif //JUCE_LINUX
