@@ -15,10 +15,10 @@
 #include <thread>
 #include <pigpio.h>
 
-class ak4558
+class AK4558
 {
 public:
-  static void ak4558Config(int i2cHandle, const unsigned int ak4558ResetGPIO)
+  static void config(int i2cHandle, const unsigned int ak4558ResetGPIO)
   {
     using std::chrono::milliseconds;
     using std::this_thread::sleep_for;
@@ -188,6 +188,6 @@ private:
   static constexpr unsigned int DACVOLUME_0dB = 0xFF;
 
   // This class can't be instantiated, it's just a holder for static methods.
-  ak4558() = delete;
+  AK4558() = delete;
 };
 #endif //JUCE_LINUX
