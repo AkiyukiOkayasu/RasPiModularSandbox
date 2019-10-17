@@ -53,7 +53,7 @@ private:
   static constexpr int spiBaudrate = 200000;
   static constexpr int spiFlag = 0;
   std::thread th; //Thread for getting CV value via SPI
-  bool isCVEnabled = true;  
+  bool isCVEnabled = true;
   std::array<std::atomic<int>, 8> cv;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)

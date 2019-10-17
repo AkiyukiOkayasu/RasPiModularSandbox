@@ -18,12 +18,12 @@ MainComponent::MainComponent()
     using std::this_thread::sleep_for;
 
     /*
-  Configure PIGPIO clock for I2S audio
-  gpioCfgClock(macro, PWM/PCM, deprecated param)
-  macro: 5
-  PWM/PCM: 0:PWM, 1:PCM
-  pigpio with using I2S audio. You have to set PWM mode before call gpioInitialise()
-  */
+    Configure PIGPIO clock for I2S audio
+    gpioCfgClock(macro, PWM/PCM, deprecated param)
+    macro: 5
+    PWM/PCM: 0:PWM, 1:PCM
+    pigpio with using I2S audio. You have to set PWM mode before call gpioInitialise()
+    */
     gpioCfgClock(5, 0, 0);
 
     //gpioinit
