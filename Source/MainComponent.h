@@ -12,6 +12,7 @@
 #if JUCE_LINUX
 #include <pigpio.h>
 #include "AK4558.h"
+#include "CVUtil.h"
 #endif
 
 //==============================================================================
@@ -35,6 +36,7 @@ public:
   void paint(Graphics &g) override;
   void resized() override;
   void showAudioSettings();
+  void updateSynthVoices();
 
 private:
   //==============================================================================
@@ -52,9 +54,23 @@ private:
   static constexpr int spiCS = 0; //SPI chip select(0 or 1)
   static constexpr int spiBaudrate = 200000;
   static constexpr int spiFlag = 0;
+
+  //CV
   std::thread th; //Thread for getting CV value via SPI
   bool isCVEnabled = true;
   std::array<std::atomic<int>, 8> cv;
+  static constexpr int NUM_ADC_CHANNELS = 8;
+
+  //Oscillators
+  enum class synthVoiceIndex{
+    osc,
+    gain
+  };  
+  using synthVoice = dsp::ProcessorChain<dsp::Oscillator<float>, dsp::Gain<float>>;
+  static constexpr int NUM_VOICES = 4;
+  std::array<synthVoice, NUM_VOICES> synthVoices;
+  static constexpr float OSC_FREQ_MIN = 110.0;
+  static constexpr float OSC_FREQ_MAX = 880.0;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

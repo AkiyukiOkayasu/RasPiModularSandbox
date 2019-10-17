@@ -13,6 +13,14 @@ MainComponent::MainComponent()
 {
     setSize(800, 600);
 
+    //DSP module
+    for (auto& s: synthVoices) 
+    {
+        auto& osc s.get<synthVoiceIndex::osc>();
+        auto& gain s.get<synthVoiceIndex::gain>();
+        osc.initialise([](float x)){return std::sin(x)}, 128);
+    }
+
 #if JUCE_LINUX
     using std::chrono::milliseconds;
     using std::this_thread::sleep_for;
@@ -42,7 +50,7 @@ MainComponent::MainComponent()
     //gpio 5 to high>low
     gpioSetMode(AK4558RESET, PI_OUTPUT);
 
-    //I2C
+    // I2C
     i2cHandler = i2cOpen(i2cPort, i2cAddr, i2cFlag);
     if (i2cHandler < 0)
     {
@@ -55,6 +63,7 @@ MainComponent::MainComponent()
         std::cout << "I2C port is opened" << std::endl;
     }
 
+    // SPI
     spiHandler = spiOpen(spiCS, spiBaudrate, spiFlag);
     if (spiHandler < 0)
     {
@@ -65,20 +74,31 @@ MainComponent::MainComponent()
         std::cout << "SPI port is opened" << std::endl;
     }
 
+    // Get CV Value
+    char txBuf[3];
+    for (int i = 0; i < NUM_ADC_CHANNELS; ++i)
+    {
+        txBuf[0] = (0x18 + i) << 2;
+        txBuf[1] = txBuf[2] = 0;
+        spiXfer(spiHandler, txBuf, txBuf, 3);
+        cv[i] = (txBuf[1] & 0xFF) << 4 | (txBuf[2] & 0xFF) >> 4;
+    }
+
+    updateSynthVoices();
+
+    // CV update thread
     th = std::thread([this] {
-        char txBuf[3];
+        char txBuffer[3];
         while (isCVEnabled)
         {
-            for (int i = 0; i < 8; ++i)
+            for (int i = 0; i < NUM_ADC_CHANNELS; ++i)
             {
-                txBuf[0] = (0x18 + i) << 2;
-                txBuf[1] = txBuf[2] = 0;
-                spiXfer(spiHandler, txBuf, txBuf, 3);
-                cv[i] = (txBuf[1] & 0xFF) << 4 | (txBuf[2] & 0xFF) >> 4;
-                //sleep_for(milliseconds(10)); //10ms sleep
+                txBuffer[0] = (0x18 + i) << 2;
+                txBuffer[1] = txBuffer[2] = 0;
+                spiXfer(spiHandler, txBuffer, txBuffer, 3);
+                cv[i] = (txBuffer[1] & 0xFF) << 4 | (txBuffer[2] & 0xFF) >> 4;                
             }
             sleep_for(milliseconds(5)); //5ms sleep
-            std::cout << "CV: " << cv[0] << ", " << cv[1] << ", " << cv[2] << ", " << cv[3] << ", " << cv[4] << ", " << cv[5] << ", " << cv[6] << ", " << cv[7] << std::endl;
         }
     });
 #endif //JUCE_LINUX
@@ -122,15 +142,31 @@ MainComponent::~MainComponent()
 //==============================================================================
 void MainComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
+    //DSP module
+    dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.numChannels = 2;
+    spec.maximumBlockSize = samplesPerBlockExpected;
+    for (auto& s: synthVoices) 
+    {
+        s.prepare(spec);
+    }
+
 #if JUCE_LINUX
     //AK4558 setup
-    ak4558::ak4558Config(i2cHandler, AK4558RESET);
+    AK4558::config(i2cHandler, AK4558RESET);
 #endif //JUCE_LINUX
 }
 
 void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo &bufferToFill)
-{
-    //Input audio through output without any processing
+{    
+    updateSynthVoices();
+    dsp::AudioBlock<float> audioBlock(*bufferToFill.buffer);
+	dsp::ProcessContextReplacing<float> context(audioBlock);
+    for (auto& s: synthVoices) 
+    {
+        s.process(context);
+    }	
 }
 
 void MainComponent::releaseResources()
@@ -169,4 +205,15 @@ void MainComponent::showAudioSettings()
     o.useNativeTitleBar = true;
     o.resizable = false;
     o.runModal();
+}
+
+void MainComponent::updateSynthVoices()
+{
+    for (int i = 0; i < NUM_VOICES; ++i) 
+    {
+        auto& osc synthVoices[i].get<synthVoiceIndex::osc>();
+        auto& gain synthVoices[i].get<synthVoiceIndex::gain>();        
+        osc.setFrequency(CVUtil::scale(cv[i], OSC_FREQ_MIN, OSC_FREQ_MAX));
+        gain.setGainLinear(CVUtil::normalize(cv[i + 1]));
+    }    
 }
