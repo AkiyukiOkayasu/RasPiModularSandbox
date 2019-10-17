@@ -63,11 +63,12 @@ private:
 
   //Oscillators
   enum class synthVoiceIndex{
-    osc,
+    osc = 0,
     gain
-  };  
+  };
   using synthVoice = dsp::ProcessorChain<dsp::Oscillator<float>, dsp::Gain<float>>;
   static constexpr int NUM_VOICES = 4;
+  dsp::ProcessorChain<dsp::Oscillator<float>, dsp::Gain<float>> processorChain;
   std::array<synthVoice, NUM_VOICES> synthVoices;
   static constexpr float OSC_FREQ_MIN = 110.0;
   static constexpr float OSC_FREQ_MAX = 880.0;
